@@ -1,0 +1,37 @@
+version: '3.9'
+name: tender-application
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: db
+    environment:
+      SA_PASSWORD: "@LiK|-|@nCh78ErL!"
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+    ports:
+      - "1433:1433"
+    networks:
+      - app-network
+    
+  tender-app:
+    build:
+
+      context: .
+      dockerfile: ./Tender.App.Api/Dockerfile
+    ports:
+      - "5206:5206"
+    volumes:
+      - ./Tender.App.Api/appsettings.json:/app/appsettings.json
+      - ./Tender.App.Api/appsettings.Development.json:/app/appsettings.Development.json
+      - ~/.aspnet/https:/https:ro
+    depends_on:
+      - db
+    environment:
+      - ASPNETCORE_URLS=http://+:5206
+      - ASPNETCORE_ENVIRONMENT=Production
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge 
